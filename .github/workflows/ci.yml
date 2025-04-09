@@ -1,0 +1,11 @@
+# .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Your build commands here"
+      # 确保至少有一个步骤会产生状态报告
