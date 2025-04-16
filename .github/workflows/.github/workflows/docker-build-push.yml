@@ -1,0 +1,25 @@
+name: Build and Push to Harbor
+
+on:
+  push:
+    branches: [ "main" ]  # 触发分支
+
+jobs:
+  build-and-push:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Harbor
+        run: |
+          echo "${{ secrets.HARBOR_TOKEN }}" | docker login https://${{ secrets.HARBOR_URL }} \
+            -u ${{ secrets.HARBOR_USER }} --password-stdin
+            
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.HARBOR_URL }}/nanhuinsight/your-image-name:latest .
+
+      - name: Push to Harbor
+        run: |
+          docker push ${{ secrets.HARBOR_URL }}/nanhuinsight/your-image-name:latest
