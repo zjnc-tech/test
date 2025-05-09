@@ -5,11 +5,14 @@ on:
     branches:
       - 'main'
       - 'sprint**'
+      - 'hotfix**'
   push:
     branches:
       - 'main'
       - 'sprint**'
-
+      - 'hotfix**'
+env:
+  ENV: ${{ github.ref == 'refs/heads/main' && 'PROD' || startsWith(github.ref, 'refs/heads/sprint') && 'TEST' || 'DEV' }} # 根据分支控制环境
 jobs:
   has-credentials:
     name: Check for Harbor secrets
@@ -30,6 +33,10 @@ jobs:
             echo "Error: HARBOR_USER is not set"
             exit 1
           fi
+          if [ -z "${{ ENV }}" ]; then
+            echo "Error: ENV is not set"
+            exit 1
+          fi
   build-and-push:
     runs-on: self-hosted
     needs: has-credentials
@@ -39,6 +46,7 @@ jobs:
 
       - name: Login to Harbor
         run: |
+          echo "ENV: $ENV"
           echo "${{ secrets.HARBOR_TOKEN }}" | docker login https://${{ secrets.HARBOR_URL }} \
             -u ${{ secrets.HARBOR_USER }} --password-stdin
             
