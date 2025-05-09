@@ -1,12 +1,38 @@
 name: Build and Push to Harbor
 
 on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'sprint**'
   push:
-    branches: [ "main" ]  # 触发分支
+    branches:
+      - 'main'
+      - 'sprint**'
 
 jobs:
+  has-credentials:
+    name: Check for Harbor secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check for Harbor secrets
+        run: |
+          if [ -z "${{ secrets.HARBOR_TOKEN }}" ]; then
+            echo "Error: HARBOR_TOKEN is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.HARBOR_URL }}" ]; then
+            echo "Error: HARBOR_URL is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.HARBOR_USER }}" ]; then
+            echo "Error: HARBOR_USER is not set"
+            exit 1
+          fi
   build-and-push:
     runs-on: self-hosted
+    needs: has-credentials
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
