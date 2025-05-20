@@ -39,6 +39,7 @@ jobs:
           fi
   build-and-push:
     runs-on: self-hosted
+    environment: $ENV
     needs: has-credentials
     steps:
       - name: Checkout code
